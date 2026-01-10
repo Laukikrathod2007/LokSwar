@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, Brain, FileText, CheckCircle } from 'lucide-react';
+import { Sparkles, Brain, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useEligibility } from '@/context/EligibilityContext';
 import { EligibilityResult } from '@/types/eligibility';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const loadingSteps = [
   { icon: Brain, text: "Analyzing eligibility criteria..." },
@@ -22,6 +24,8 @@ export function AIExplanationLoading() {
   
   const [currentStep, setCurrentStep] = useState(0);
   const [dots, setDots] = useState('');
+  const [aiError, setAiError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Animate loading dots
   useEffect(() => {
@@ -39,60 +43,101 @@ export function AIExplanationLoading() {
     return () => clearInterval(stepInterval);
   }, []);
 
-  // Simulate AI generation (in real app, this would call an API)
+  // Call AI edge function to generate explanation
   useEffect(() => {
     if (!selectedScheme) return;
 
     const generateExplanation = async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 6000));
-
       try {
-        // Calculate eligibility
-        const passedRules = ruleResults.filter(r => r.passed).length;
-        const totalRules = ruleResults.length;
-        const isEligible = passedRules === totalRules;
-        const overallScore = Math.round((passedRules / totalRules) * 100);
+        console.log("Calling AI edge function for eligibility explanation...");
+        
+        const { data, error: functionError } = await supabase.functions.invoke(
+          'generate-eligibility-explanation',
+          {
+            body: {
+              schemeName: selectedScheme.name,
+              schemeDescription: selectedScheme.description,
+              ministry: selectedScheme.ministry,
+              benefits: selectedScheme.benefits,
+              userProfile,
+              ruleResults,
+            }
+          }
+        );
 
-        // Generate explanation based on results
-        const explanation = isEligible
-          ? `Based on a comprehensive analysis of your profile against the eligibility criteria for ${selectedScheme.name}, you appear to meet all the required conditions. Your profile satisfies ${passedRules} out of ${totalRules} eligibility criteria, including the core requirements specified by the ${selectedScheme.ministry}. You are encouraged to proceed with the application process and gather the necessary documentation.`
-          : `After careful evaluation of your profile against ${selectedScheme.name} eligibility requirements, we found that ${passedRules} out of ${totalRules} criteria are met. The unmet criteria may affect your eligibility. We recommend reviewing the specific requirements and considering alternative schemes that may better match your profile.`;
+        if (functionError) {
+          console.error("Edge function error:", functionError);
+          throw new Error(functionError.message || "Failed to generate explanation");
+        }
 
-        const nextSteps = isEligible
-          ? [
-              "Gather all required documents mentioned above",
-              "Visit the official scheme portal or nearest CSC center",
-              "Submit your application with verified documents",
-              "Track your application status online"
-            ]
-          : [
-              "Review the unmet criteria carefully",
-              "Check if any criteria can be met with updated documentation",
-              "Consider alternative schemes listed below",
-              "Visit local government office for personalized assistance"
-            ];
+        if (!data?.success) {
+          // Handle specific error codes
+          if (data?.code === 'RATE_LIMIT') {
+            toast({
+              title: "Rate Limit Exceeded",
+              description: "Too many requests. Please wait a moment and try again.",
+              variant: "destructive",
+            });
+          } else if (data?.code === 'PAYMENT_REQUIRED') {
+            toast({
+              title: "Service Unavailable",
+              description: "AI service is temporarily unavailable. Please try again later.",
+              variant: "destructive",
+            });
+          }
+          throw new Error(data?.error || "Failed to generate explanation");
+        }
+
+        console.log("AI explanation received:", data);
 
         const result: EligibilityResult = {
           schemeId: selectedScheme.id,
-          isEligible,
-          overallScore,
+          isEligible: data.isEligible,
+          overallScore: data.overallScore,
           ruleResults,
-          aiExplanation: explanation,
-          nextSteps,
-          alternativeSchemes: isEligible ? [] : ["pmay", "ayushman-bharat"],
-          generatedAt: new Date(),
+          aiExplanation: data.explanation,
+          nextSteps: data.nextSteps,
+          alternativeSchemes: data.isEligible ? [] : ["pmay", "ayushman-bharat"],
+          generatedAt: new Date(data.generatedAt),
         };
 
         // CRITICAL: Only here do we transition to FINAL_RESULT
         completeAIExplanation(result);
+        
       } catch (error) {
+        console.error("Error generating AI explanation:", error);
+        setAiError(error instanceof Error ? error.message : "Unknown error occurred");
         setError("Failed to generate AI explanation. Please try again.");
       }
     };
 
     generateExplanation();
-  }, [selectedScheme, ruleResults, completeAIExplanation, setError]);
+  }, [selectedScheme, userProfile, ruleResults, completeAIExplanation, setError, toast]);
+
+  // Show error state if AI failed
+  if (aiError) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
+        <div className="bg-card rounded-xl p-8 md:p-12 shadow-sm border text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/20 flex items-center justify-center">
+            <AlertTriangle className="w-10 h-10 text-destructive" />
+          </div>
+          
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            AI Generation Failed
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            {aiError}
+          </p>
+          
+          <p className="text-sm text-muted-foreground">
+            The eligibility assessment cannot be completed without AI analysis.
+            Please go back and try again.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
@@ -152,11 +197,11 @@ export function AIExplanationLoading() {
           })}
         </div>
 
-        {/* Warning note */}
+        {/* Info note */}
         <div className="mt-8 p-4 bg-muted rounded-lg">
           <p className="text-sm text-muted-foreground">
-            ⚠️ This analysis is AI-generated based on available government guidelines. 
-            For official confirmation, please consult the relevant government department.
+            🤖 Using AI to analyze your eligibility based on official government guidelines. 
+            This may take a few seconds.
           </p>
         </div>
       </div>
