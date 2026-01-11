@@ -1,236 +1,146 @@
-LokSwar – AI Assistant for Indian Farmers
+# **LokSwar – AI Assistant for Indian Farmers**
 
-Tagline: “Understand government schemes in your own language”
+**Tagline:** *“Understand government schemes in your own language”*  
 
-Table of Contents
+---
 
-Problem Statement
+## **Table of Contents**
 
-Solution Overview
+1. [Project Overview](#project-overview)  
+2. [Problem Statement](#problem-statement)  
+3. [Solution Overview](#solution-overview)  
+4. [Features](#features)  
+5. [Technology Stack](#technology-stack)  
+6. [GenAI Integration](#genai-integration)  
+7. [User Flow & Screenshots](#user-flow--screenshots)  
+8. [Setup & Deployment](#setup--deployment)  
+9. [Future Improvements](#future-improvements)  
+10. [Team](#team)  
+11. [Links](#links)  
+12. [Disclaimer](#disclaimer)  
 
-Features
+---
 
-Technology Stack
+## **Project Overview**
 
-GenAI Integration
+**LokSwar** is a **production-ready web application** designed to help Indian farmers understand and access government welfare schemes. It combines **rule-based eligibility checks** with **GenAI-powered explanations**, multilingual support, and voice interaction, providing an official, trustworthy experience for rural users.  
 
-User Flow & Screenshots
+---
 
-Setup & Deployment
+## **Problem Statement**
 
-Future Improvements
+Millions of Indian farmers cannot easily understand or access government schemes due to:  
 
-Team
+- Complex eligibility rules  
+- Language barriers  
+- Scattered and confusing portals  
+- Low digital literacy, especially in rural areas  
 
-Problem Statement
+Existing solutions are often English-centric and text-heavy, making adoption difficult.  
 
-Millions of Indian farmers struggle to access and understand government welfare schemes due to:
+---
 
-Complex eligibility rules
+## **Solution Overview**
 
-Language barriers
+**LokSwar** provides:  
 
-Scattered and confusing portals
+- A **step-by-step eligibility workflow**  
+- **Voice-first interaction** with regional language support  
+- **Personalized AI explanations** using GPT-4o  
+- **Optional document upload** for AI simplification  
+- **Professional, official-style UI** suitable for rural users  
 
-Low digital literacy, especially in rural areas
+**Core principle:** Eligibility decisions are deterministic, but GenAI is mandatory for explanation, accessibility, and voice interaction.  
 
-Existing solutions are often English-centric, text-heavy, and hard to navigate.
+---
 
-Solution Overview
+## **Features**
 
-LokSwar is a production-ready web app that acts as a voice-first AI assistant to help farmers:
+- **Landing / Onboarding Page**  
+  - Logo, tagline, Start with Voice / Type instead  
+  - Smooth animations and mobile-first layout  
 
-Evaluate scheme eligibility using official parameters
+- **Language Selection**  
+  - English, Hindi, Telugu, Tamil  
+  - Persisted across sessions  
 
-Receive personalized, multilingual explanations
+- **Farmer Profile Form**  
+  - Name, Age, State, District, Landholding, Category  
+  - Validation + step progress  
 
-Navigate schemes in a step-by-step, professional workflow
+- **Scheme Selection & Eligibility Workflow**  
+  - Multi-step evaluation: Scheme selected → Profile validation → Rule evaluation → AI explanation → Final result  
+  - Professional card design with expandable explanations  
 
-Optionally upload documents for AI-driven simplification
+- **GenAI Integration**  
+  - GPT-4o for personalized, multilingual explanations  
+  - Whisper for regional language voice input  
 
-Core Principle: Deterministic rule-based eligibility + GenAI-powered accessibility and explanation.
+- **Optional Document Upload**  
+  - Upload PDFs/images → AI simplifies and explains  
 
-This ensures trust, transparency, and inclusivity.
+- **Responsive & Accessible UI**  
+  - Mobile-friendly, touch-enabled, readable typography  
 
-Features
-✅ Mandatory & Working Features
+- **Data Persistence**  
+  - Stores language selection and profile locally  
 
-Landing / Onboarding Page
+---
 
-App logo, tagline, and voice/text start options
+## **Technology Stack**
 
-Smooth animations, mobile-friendly layout
+- **Frontend:** React + Next.js + Tailwind CSS + shadcn/ui  
+- **AI Integration:** OpenAI GPT-4o, Whisper  
+- **Storage:** Browser local/session storage  
+- **Deployment:** Vercel  
 
-Language Selection
+---
 
-English, Hindi, Telugu, Tamil
+## **GenAI Integration**
 
-Persists across sessions
+- **Mandatory Core Layer:**  
+  - Generates personalized, multilingual explanations  
+  - Converts voice input to text and intent  
+  - Simplifies uploaded documents  
 
-Farmer Profile Form
+- **Rule Engine + AI:**  
+  - Deterministic eligibility check  
+  - AI explanation only activates after rules are evaluated  
 
-Name, Age, State, District, Landholding, Category
+- **Visibility:**  
+  - Users see messages like *“Generating explanation based on government rules…”*  
+  - If GenAI fails, final result cannot proceed  
 
-Validation & progress indicator
+---
 
-Scheme Selection & Evaluation
+## **User Flow & Screenshots**
 
-Professional, official-style scheme cards
+1. Landing / Onboarding → Select Language  
+2. Profile Form → Fill Farmer Details  
+3. Scheme Selection → Begin Eligibility Assessment  
+4. Rule Evaluation → Progress indicators  
+5. AI Explanation → Personalized multilingual output  
+6. Final Result → Eligibility status + next steps  
 
-Multi-step eligibility workflow:
+*Include screenshots or GIFs here for each step.*  
 
-Scheme Selected
+---
 
-Profile Validation
+## **Setup & Deployment**
 
-Rule Evaluation (deterministic)
+### **Requirements**
 
-AI Explanation (GPT-4o)
+- Node.js ≥ 18  
+- NPM or Yarn  
+- OpenAI API Key  
 
-Final Result
+### **Local Setup**
 
-AI Integration
-
-GPT-4o: Simplifies policy, generates multilingual explanations
-
-Whisper: Converts regional language voice input into structured queries
-
-Optional Upload Page
-
-Upload PDFs/images → AI simplifies content
-
-Responsive & Accessible UI
-
-Mobile-first design
-
-Step-based navigation
-
-Clear buttons, readable typography
-
-Data Persistence
-
-Stores language and profile in browser storage
-
-Ready for future backend integration
-
-Deployment
-
-Deployed via Vercel
-
-Supports environment variable OPENAI_API_KEY
-
-Technology Stack
-
-Frontend: React + Next.js + Tailwind CSS + shadcn/ui
-
-Backend (optional): Vercel serverless API (for production-scale AI calls)
-
-AI Integration:
-
-OpenAI GPT-4o (explanation & simplification)
-
-OpenAI Whisper (voice input)
-
-Storage: LocalStorage / Session Storage
-
-Deployment: Vercel
-
-GenAI Integration
-
-Mandatory Core Layer:
-
-All AI-generated content passes through GPT-4o
-
-Generates multilingual explanations
-
-Personalizes responses based on user profile
-
-Handles voice input & document simplification
-
-Rule Engine + AI:
-
-Eligibility determined by deterministic government rules
-
-GenAI only explains, simplifies, and personalizes
-
-Ensures trustworthy and verifiable outcomes
-
-Visibility:
-
-Users see “Generating explanation based on government rules…” during AI processing
-
-User Flow & Screenshots
-
-Landing / Onboarding → Select Language
-
-Profile Form → Enter Farmer Details
-
-Scheme Selection → Click a scheme → “Begin Assessment”
-
-Rule Evaluation → Progress bars & validation
-
-AI Explanation → Personalized multilingual output
-
-Final Result → Eligibility status, steps, documents
-
-(Include screenshots or GIFs here for each step)
-
-Setup & Deployment
-Requirements
-
-Node.js ≥ 18
-
-NPM or Yarn
-
-OpenAI API Key
-
-Local Setup
+```bash
 git clone https://github.com/your-team/lokswar.git
 cd lokswar
 npm install
 cp .env.example .env
-# Add your API key
+# Add your OpenAI API Key:
 # OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxx
 npm run dev
-
-Deployment
-
-Push to GitHub
-
-Connect repo to Vercel
-
-Set OPENAI_API_KEY as environment variable
-
-Publish → Live URL
-
-Future Improvements
-
-Full backend with authentication & database storage
-
-PDF / document parsing with AI summarization
-
-SMS / WhatsApp notifications for scheme updates
-
-Integration with government APIs for real-time eligibility
-
-Team
-
-Your Name: Frontend & Workflow Design
-
-Teammate Name: AI Integration & GenAI Prompting
-
-Hackathon: OpenAI x NxtWave Buildathon – Stage 2 Regional Qualifiers
-
-Links (Example)
-
-Deployed App: https://lokswar.vercel.app
-
-GitHub Repo: https://github.com/your-team/lokswar
-
-PPT Presentation: https://drive.google.com/
-...
-
-Demo Video (≤5min): https://drive.google.com/
-...
-
-Disclaimer: This AI guidance tool simplifies government schemes for better understanding. Eligibility is determined by official government rules. Users should verify with official sources.
