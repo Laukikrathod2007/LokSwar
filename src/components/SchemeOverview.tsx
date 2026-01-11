@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, FileText, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, CheckCircle2, Sparkles, Shield } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEligibility } from '@/context/EligibilityContext';
@@ -25,51 +25,71 @@ export function SchemeOverview() {
       </Button>
 
       {/* Scheme header */}
-      <div className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
-        <div className="flex items-start gap-4 mb-6">
+      <div className="glass-card rounded-2xl p-6 md:p-8">
+        <div className="flex items-start gap-5 mb-6">
           <div 
-            className="w-16 h-16 rounded-xl flex items-center justify-center shrink-0"
-            style={{ backgroundColor: `${category.color}20` }}
+            className="w-20 h-20 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ 
+              background: `linear-gradient(135deg, ${category.color}25, ${category.color}10)`,
+              boxShadow: `0 8px 24px ${category.color}15`
+            }}
           >
             <IconComponent 
-              className="w-8 h-8" 
+              className="w-10 h-10" 
               style={{ color: category.color }}
             />
           </div>
           
-          <div>
-            <h2 className="text-2xl font-bold text-foreground mb-1">
-              {selectedScheme.name}
-            </h2>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                {selectedScheme.name}
+              </h2>
+            </div>
             {selectedScheme.nameHindi && (
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-muted-foreground font-medium">
                 {selectedScheme.nameHindi}
               </p>
             )}
-            <p className="text-sm text-muted-foreground mt-2">
-              {selectedScheme.ministry}
-            </p>
+            <div className="flex items-center gap-3 mt-3">
+              <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+                {selectedScheme.ministry}
+              </span>
+              <span className="genai-badge text-xs py-1 px-2">
+                <Sparkles className="w-3 h-3" />
+                AI Simplified
+              </span>
+            </div>
           </div>
         </div>
 
-        <p className="text-foreground mb-6">
-          {selectedScheme.description}
-        </p>
+        {/* AI Simplified Description */}
+        <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10">
+          <div className="flex items-center gap-2 text-sm font-medium text-primary mb-2">
+            <Sparkles className="w-4 h-4" />
+            AI-Simplified Policy Overview
+          </div>
+          <p className="text-foreground leading-relaxed">
+            {selectedScheme.description}
+          </p>
+        </div>
 
         {/* Benefits */}
         <div className="mb-6">
-          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2 text-lg">
             <CheckCircle2 className="w-5 h-5 text-success" />
             Key Benefits
           </h3>
-          <ul className="space-y-2">
+          <ul className="grid gap-3 md:grid-cols-2">
             {selectedScheme.benefits.map((benefit, idx) => (
               <li 
                 key={idx}
-                className="flex items-start gap-3 text-muted-foreground"
+                className="flex items-start gap-3 p-3 rounded-xl bg-success/5 border border-success/10"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-success mt-2 shrink-0" />
-                {benefit}
+                <span className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle2 className="w-4 h-4 text-success" />
+                </span>
+                <span className="text-foreground text-sm">{benefit}</span>
               </li>
             ))}
           </ul>
@@ -77,7 +97,7 @@ export function SchemeOverview() {
 
         {/* Required Documents */}
         <div className="mb-6">
-          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2 text-lg">
             <FileText className="w-5 h-5 text-primary" />
             Required Documents
           </h3>
@@ -85,7 +105,7 @@ export function SchemeOverview() {
             {selectedScheme.requiredDocuments.map((doc, idx) => (
               <span 
                 key={idx}
-                className="px-3 py-1.5 bg-muted rounded-full text-sm text-muted-foreground"
+                className="px-4 py-2 glass-card rounded-xl text-sm text-muted-foreground"
               >
                 {doc}
               </span>
@@ -94,20 +114,26 @@ export function SchemeOverview() {
         </div>
 
         {/* Eligibility Criteria Preview */}
-        <div className="bg-muted/50 rounded-lg p-4 mb-6">
-          <h3 className="font-semibold text-foreground mb-2">
-            Eligibility Criteria Overview
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            This scheme has {selectedScheme.eligibilityCriteria.length} eligibility requirements. 
-            Click below to start the assessment process.
+        <div className="glass-card rounded-xl p-5 mb-6 bg-gradient-to-r from-muted/30 to-muted/10">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              Eligibility Assessment
+            </h3>
+            <span className="text-sm text-primary font-medium">
+              {selectedScheme.eligibilityCriteria.length} criteria to verify
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Our AI will evaluate your profile against official eligibility rules and provide 
+            a detailed explanation in simple, easy-to-understand language.
           </p>
         </div>
 
         {/* CTA Button */}
         <Button 
           size="lg" 
-          className="w-full gap-2"
+          className="w-full gap-3 h-14 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
           onClick={startProfileValidation}
         >
           Begin Eligibility Assessment

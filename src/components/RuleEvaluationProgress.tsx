@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle2, XCircle, Loader2, Scale } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, Scale, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEligibility } from '@/context/EligibilityContext';
 import { RuleEvaluationResult } from '@/types/eligibility';
@@ -99,21 +99,21 @@ export function RuleEvaluationProgress() {
   if (!selectedScheme) return null;
 
   const allRulesPassed = results.length > 0 && results.every(r => r.passed);
-  const someRulesFailed = results.some(r => !r.passed);
+  const passedCount = results.filter(r => r.passed).length;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
-      <div className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Scale className="w-6 h-6 text-primary" />
+      <div className="glass-card rounded-2xl p-6 md:p-8">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+            <Scale className="w-7 h-7 text-primary" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">
               Evaluating Eligibility Rules
             </h2>
             <p className="text-sm text-muted-foreground">
-              Checking {selectedScheme.name} criteria
+              Checking <span className="text-primary font-medium">{selectedScheme.name}</span> criteria
             </p>
           </div>
         </div>
@@ -122,8 +122,8 @@ export function RuleEvaluationProgress() {
         <div className="mb-6">
           <div className="flex justify-between text-sm mb-2">
             <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium">
-              {currentIndex}/{selectedScheme.eligibilityCriteria.length} rules checked
+            <span className="font-semibold text-foreground">
+              {currentIndex}/{selectedScheme.eligibilityCriteria.length} rules verified
             </span>
           </div>
           <div className="progress-bar">
@@ -147,25 +147,33 @@ export function RuleEvaluationProgress() {
               <div
                 key={criterion.id}
                 className={cn(
-                  "flex items-start gap-3 p-4 rounded-lg transition-all duration-300",
+                  "flex items-start gap-4 p-4 rounded-xl transition-all duration-500",
                   result?.passed && "bg-success/10 border border-success/20",
                   result && !result.passed && "bg-destructive/10 border border-destructive/20",
                   isCurrentlyEvaluating && "bg-primary/10 border border-primary/20",
-                  isPending && "bg-muted/50 opacity-50"
+                  isPending && "bg-muted/30 opacity-50"
                 )}
               >
                 <div className="mt-0.5">
                   {result?.passed && (
-                    <CheckCircle2 className="w-5 h-5 text-success" />
+                    <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center">
+                      <CheckCircle2 className="w-5 h-5 text-success" />
+                    </div>
                   )}
                   {result && !result.passed && (
-                    <XCircle className="w-5 h-5 text-destructive" />
+                    <div className="w-8 h-8 rounded-full bg-destructive/20 flex items-center justify-center">
+                      <XCircle className="w-5 h-5 text-destructive" />
+                    </div>
                   )}
                   {isCurrentlyEvaluating && (
-                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                    </div>
                   )}
                   {isPending && (
-                    <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/30" />
+                    <div className="w-8 h-8 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center">
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />
+                    </div>
                   )}
                 </div>
                 
@@ -185,7 +193,7 @@ export function RuleEvaluationProgress() {
                     </p>
                   )}
                   {isCurrentlyEvaluating && (
-                    <p className="text-sm text-primary mt-1">
+                    <p className="text-sm text-primary mt-1 animate-pulse">
                       Verifying against your profile...
                     </p>
                   )}
@@ -197,32 +205,34 @@ export function RuleEvaluationProgress() {
 
         {/* Continue button - only shown when evaluation is complete */}
         {!isEvaluating && (
-          <div className="mt-6 pt-6 border-t space-y-4">
+          <div className="mt-6 pt-6 border-t border-border/50 space-y-4">
             <div className={cn(
-              "p-4 rounded-lg text-center",
-              allRulesPassed ? "bg-success/10" : "bg-warning/10"
+              "p-5 rounded-xl text-center",
+              allRulesPassed ? "bg-success/10 border border-success/20" : "bg-amber-500/10 border border-amber-500/20"
             )}>
               <p className={cn(
-                "font-medium",
-                allRulesPassed ? "text-success" : "text-warning"
+                "font-semibold text-lg",
+                allRulesPassed ? "text-success" : "text-amber-600"
               )}>
                 {allRulesPassed 
-                  ? "✓ All eligibility criteria passed!" 
-                  : `${results.filter(r => r.passed).length} of ${results.length} criteria met`
+                  ? "✓ All eligibility criteria verified!" 
+                  : `${passedCount} of ${results.length} criteria met`
                 }
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Our AI will now generate a detailed explanation of your eligibility status.
+              <p className="text-sm text-muted-foreground mt-2 flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                Our AI will now generate a detailed explanation based on official guidelines.
               </p>
             </div>
 
             <Button 
               size="lg" 
-              className="w-full gap-2"
+              className="w-full gap-3 h-14 text-base font-semibold bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-lg"
               onClick={startAIExplanation}
             >
+              <Sparkles className="w-5 h-5" />
               Generate AI Explanation
-              <Loader2 className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
         )}

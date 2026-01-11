@@ -6,7 +6,10 @@ import {
   Download, 
   Share2,
   RotateCcw,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  FileText,
+  Lightbulb
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEligibility } from '@/context/EligibilityContext';
@@ -40,68 +43,104 @@ export function FinalEligibilityResult() {
       {/* Result Header */}
       <div 
         className={cn(
-          "rounded-xl p-8 text-center",
+          "rounded-2xl p-8 md:p-10 text-center relative overflow-hidden",
           finalResult.isEligible ? "result-eligible" : "result-not-eligible"
         )}
       >
-        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-white/20 flex items-center justify-center">
-          {finalResult.isEligible ? (
-            <CheckCircle2 className="w-10 h-10" />
-          ) : (
-            <XCircle className="w-10 h-10" />
-          )}
-        </div>
+        {/* Background Pattern */}
+        {finalResult.isEligible && (
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-4 left-4 w-32 h-32 border border-white/30 rounded-full" />
+            <div className="absolute bottom-4 right-4 w-48 h-48 border border-white/20 rounded-full" />
+          </div>
+        )}
         
-        <h2 className="text-2xl md:text-3xl font-bold mb-2">
-          {finalResult.isEligible ? "You Are Eligible!" : "Eligibility Not Confirmed"}
-        </h2>
-        
-        <p className="text-lg opacity-90 mb-4">
-          {selectedScheme.name}
-        </p>
+        <div className="relative z-10">
+          <div className={cn(
+            "w-24 h-24 mx-auto mb-5 rounded-2xl flex items-center justify-center",
+            finalResult.isEligible ? "bg-white/20" : "bg-destructive/20"
+          )}>
+            {finalResult.isEligible ? (
+              <CheckCircle2 className="w-12 h-12" />
+            ) : (
+              <XCircle className="w-12 h-12" />
+            )}
+          </div>
+          
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            {finalResult.isEligible ? "You Are Eligible!" : "Eligibility Not Confirmed"}
+          </h2>
+          
+          <p className="text-lg opacity-90 mb-5">
+            {selectedScheme.name}
+          </p>
 
-        <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-2">
-          <span className="text-sm">Eligibility Score:</span>
-          <span className="text-xl font-bold">{finalResult.overallScore}%</span>
+          <div className={cn(
+            "inline-flex items-center gap-3 rounded-full px-6 py-3",
+            finalResult.isEligible ? "bg-white/20" : "bg-destructive/20"
+          )}>
+            <span className="text-sm font-medium">Eligibility Score:</span>
+            <span className="text-2xl font-bold">{finalResult.overallScore}%</span>
+          </div>
         </div>
       </div>
 
       {/* AI Explanation */}
-      <div className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
+      <div className="glass-card rounded-2xl p-6 md:p-8">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-primary" />
-          AI Analysis Report
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          AI-Generated Explanation
+          <span className="genai-badge text-xs py-0.5 px-2 ml-2">
+            <Sparkles className="w-3 h-3" />
+            Official
+          </span>
         </h3>
         
         <div className="prose prose-sm max-w-none">
-          <p className="text-foreground leading-relaxed">
-            {finalResult.aiExplanation}
-          </p>
+          <div className="p-5 rounded-xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10">
+            <p className="text-foreground leading-relaxed whitespace-pre-line">
+              {finalResult.aiExplanation}
+            </p>
+          </div>
         </div>
 
-        <div className="mt-4 p-3 bg-muted rounded-lg text-sm text-muted-foreground">
-          Generated on: {finalResult.generatedAt.toLocaleString()}
+        <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground flex items-center justify-between">
+          <span>Generated on: {finalResult.generatedAt.toLocaleString()}</span>
+          <span className="flex items-center gap-1 text-amber-600">
+            <Sparkles className="w-3 h-3" />
+            AI Simplified
+          </span>
         </div>
       </div>
 
       {/* Criteria Results */}
-      <div className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
-        <h3 className="text-lg font-semibold mb-4">Criteria Breakdown</h3>
+      <div className="glass-card rounded-2xl p-6 md:p-8">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-primary" />
+          Criteria Breakdown
+        </h3>
         
         <div className="space-y-3">
           {finalResult.ruleResults.map((result, idx) => (
             <div 
               key={idx}
               className={cn(
-                "flex items-start gap-3 p-3 rounded-lg",
-                result.passed ? "bg-success/10" : "bg-destructive/10"
+                "flex items-start gap-4 p-4 rounded-xl",
+                result.passed ? "bg-success/10 border border-success/20" : "bg-destructive/10 border border-destructive/20"
               )}
             >
-              {result.passed ? (
-                <CheckCircle2 className="w-5 h-5 text-success shrink-0 mt-0.5" />
-              ) : (
-                <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-              )}
+              <div className={cn(
+                "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                result.passed ? "bg-success/20" : "bg-destructive/20"
+              )}>
+                {result.passed ? (
+                  <CheckCircle2 className="w-5 h-5 text-success" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-destructive" />
+                )}
+              </div>
               <div>
                 <p className={cn(
                   "font-medium",
@@ -117,16 +156,25 @@ export function FinalEligibilityResult() {
 
       {/* Next Steps */}
       {finalResult.nextSteps && finalResult.nextSteps.length > 0 && (
-        <div className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
-          <h3 className="text-lg font-semibold mb-4">Recommended Next Steps</h3>
+        <div className="glass-card rounded-2xl p-6 md:p-8">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
+              <Lightbulb className="w-4 h-4 text-white" />
+            </div>
+            Recommended Next Steps
+            <span className="genai-badge text-xs py-0.5 px-2 ml-2">
+              <Sparkles className="w-3 h-3" />
+              AI Guidance
+            </span>
+          </h3>
           
           <ol className="space-y-3">
             {finalResult.nextSteps.map((step, idx) => (
-              <li key={idx} className="flex items-start gap-3">
-                <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium shrink-0">
+              <li key={idx} className="flex items-start gap-4 p-4 rounded-xl bg-muted/30">
+                <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
                   {idx + 1}
                 </span>
-                <span className="text-foreground">{step}</span>
+                <span className="text-foreground pt-1">{step}</span>
               </li>
             ))}
           </ol>
@@ -135,14 +183,17 @@ export function FinalEligibilityResult() {
 
       {/* Alternative Schemes */}
       {alternativeSchemeData && alternativeSchemeData.length > 0 && (
-        <div className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
-          <h3 className="text-lg font-semibold mb-4">Alternative Schemes to Consider</h3>
+        <div className="glass-card rounded-2xl p-6 md:p-8">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-amber-500" />
+            Alternative Schemes to Consider
+          </h3>
           
           <div className="grid gap-3 md:grid-cols-2">
             {alternativeSchemeData.map((scheme) => scheme && (
               <div 
                 key={scheme.id}
-                className="p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                className="p-4 rounded-xl border border-border/50 hover:bg-muted/50 transition-colors cursor-pointer"
               >
                 <h4 className="font-medium text-foreground">{scheme.name}</h4>
                 <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
@@ -158,7 +209,7 @@ export function FinalEligibilityResult() {
       <div className="flex flex-col sm:flex-row gap-3">
         <Button 
           size="lg" 
-          className="flex-1 gap-2"
+          className="flex-1 gap-2 h-14 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/25"
           onClick={() => window.open('https://india.gov.in', '_blank')}
         >
           Apply Now
@@ -168,7 +219,7 @@ export function FinalEligibilityResult() {
         <Button 
           variant="outline" 
           size="lg" 
-          className="gap-2"
+          className="gap-2 h-14 glass-card"
           onClick={() => window.print()}
         >
           <Download className="w-4 h-4" />
@@ -178,7 +229,7 @@ export function FinalEligibilityResult() {
         <Button 
           variant="outline" 
           size="lg" 
-          className="gap-2"
+          className="gap-2 h-14 glass-card"
           onClick={reset}
         >
           <RotateCcw className="w-4 h-4" />
@@ -187,10 +238,10 @@ export function FinalEligibilityResult() {
       </div>
 
       {/* Disclaimer */}
-      <div className="bg-muted/50 rounded-lg p-4 text-center text-sm text-muted-foreground">
-        <p>
-          <strong>Disclaimer:</strong> This eligibility assessment is indicative and based on AI analysis. 
-          Final eligibility will be determined by the concerned government department upon verification of documents.
+      <div className="glass-card rounded-2xl p-5 text-center">
+        <p className="text-sm text-muted-foreground">
+          <strong className="text-foreground">Official Disclaimer:</strong> This eligibility assessment is indicative and generated using AI analysis of government guidelines. 
+          Final eligibility will be determined by the concerned government department upon verification of original documents.
         </p>
       </div>
     </div>
