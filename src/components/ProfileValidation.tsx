@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ArrowLeft, ArrowRight, User, Mic } from 'lucide-react';
+import { ArrowLeft, ArrowRight, User, Mic, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { useEligibility } from '@/context/EligibilityContext';
 import { UserProfile } from '@/types/eligibility';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { VoiceInputButton } from './VoiceInputButton';
+import { VoiceQueryParser } from './VoiceQueryParser';
 import { toast } from '@/hooks/use-toast';
 
 type VoiceField = 'name' | 'age' | 'income' | 'family' | 'land' | null;
@@ -39,6 +40,7 @@ export function ProfileValidation() {
   });
 
   const [activeVoiceField, setActiveVoiceField] = useState<VoiceField>(null);
+  const [showVoiceParser, setShowVoiceParser] = useState(true);
 
   const handleVoiceResult = useCallback((transcript: string) => {
     if (!activeVoiceField) return;
@@ -108,6 +110,14 @@ export function ProfileValidation() {
     }
   };
 
+  const handleVoiceQueryParsed = (parsed: Record<string, any>) => {
+    setProfile(prev => ({ ...prev, ...parsed }));
+    toast({
+      title: "Profile Updated",
+      description: "Voice input has been applied to your profile.",
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     completeProfileValidation(profile);
@@ -131,43 +141,59 @@ export function ProfileValidation() {
         Back to Scheme Overview
       </Button>
 
-      <div className="bg-card rounded-xl p-6 md:p-8 shadow-sm border">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <User className="w-6 h-6 text-primary" />
+      {/* Voice Query Parser - AI Feature */}
+      {isSupported && showVoiceParser && (
+        <VoiceQueryParser onQueryParsed={handleVoiceQueryParsed} />
+      )}
+
+      <div className="glass-card rounded-2xl p-6 md:p-8">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+            <User className="w-7 h-7 text-primary" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">
               Profile Verification
             </h2>
             <p className="text-sm text-muted-foreground">
-              Provide your details for {selectedScheme.name}
+              Provide your details for <span className="text-primary font-medium">{selectedScheme.name}</span>
             </p>
           </div>
         </div>
 
         {/* Voice Input Instructions */}
         {isSupported && (
-          <div className="mb-6 p-3 bg-accent/30 rounded-lg flex items-center gap-3 text-sm">
-            <Mic className="w-5 h-5 text-primary flex-shrink-0" />
-            <p className="text-muted-foreground">
-              Click the <span className="text-primary font-medium">microphone icon</span> next to any field to speak your answer instead of typing.
-            </p>
+          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-violet-500/10 to-purple-500/5 border border-violet-500/20 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center shrink-0">
+              <Mic className="w-5 h-5 text-violet-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                Voice Input Available
+                <span className="genai-badge text-xs py-0.5 px-2">
+                  <Sparkles className="w-3 h-3" />
+                  AI
+                </span>
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Click the microphone icon next to any field or use the voice parser above to speak naturally in Hindi or English.
+              </p>
+            </div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
               <div className="flex gap-2">
                 <Input
                   id="name"
                   placeholder="Enter your full name"
                   value={profile.name || ''}
                   onChange={(e) => updateField('name', e.target.value)}
-                  className="flex-1"
+                  className="flex-1 h-11 rounded-xl bg-background/50"
                 />
                 <VoiceInputButton
                   isListening={isListening && activeVoiceField === 'name'}
@@ -179,7 +205,7 @@ export function ProfileValidation() {
 
             {/* Age */}
             <div className="space-y-2">
-              <Label htmlFor="age">Age (Years)</Label>
+              <Label htmlFor="age" className="text-sm font-medium">Age (Years)</Label>
               <div className="flex gap-2">
                 <Input
                   id="age"
@@ -187,7 +213,7 @@ export function ProfileValidation() {
                   placeholder="Enter your age"
                   value={profile.age || ''}
                   onChange={(e) => updateField('age', parseInt(e.target.value) || undefined)}
-                  className="flex-1"
+                  className="flex-1 h-11 rounded-xl bg-background/50"
                 />
                 <VoiceInputButton
                   isListening={isListening && activeVoiceField === 'age'}
@@ -199,15 +225,15 @@ export function ProfileValidation() {
 
             {/* Gender */}
             <div className="space-y-2">
-              <Label htmlFor="gender">Gender</Label>
+              <Label htmlFor="gender" className="text-sm font-medium">Gender</Label>
               <Select 
                 value={profile.gender} 
                 onValueChange={(v) => updateField('gender', v)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl bg-background/50">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="glass-card">
                   <SelectItem value="male">Male</SelectItem>
                   <SelectItem value="female">Female</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
@@ -217,7 +243,7 @@ export function ProfileValidation() {
 
             {/* Annual Income */}
             <div className="space-y-2">
-              <Label htmlFor="income">Annual Income (₹)</Label>
+              <Label htmlFor="income" className="text-sm font-medium">Annual Income (₹)</Label>
               <div className="flex gap-2">
                 <Input
                   id="income"
@@ -225,7 +251,7 @@ export function ProfileValidation() {
                   placeholder="e.g., 300000"
                   value={profile.annualIncome || ''}
                   onChange={(e) => updateField('annualIncome', parseInt(e.target.value) || undefined)}
-                  className="flex-1"
+                  className="flex-1 h-11 rounded-xl bg-background/50"
                 />
                 <VoiceInputButton
                   isListening={isListening && activeVoiceField === 'income'}
@@ -237,15 +263,15 @@ export function ProfileValidation() {
 
             {/* State */}
             <div className="space-y-2">
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state" className="text-sm font-medium">State</Label>
               <Select 
                 value={profile.state} 
                 onValueChange={(v) => updateField('state', v)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl bg-background/50">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="glass-card">
                   <SelectItem value="delhi">Delhi</SelectItem>
                   <SelectItem value="maharashtra">Maharashtra</SelectItem>
                   <SelectItem value="karnataka">Karnataka</SelectItem>
@@ -254,21 +280,23 @@ export function ProfileValidation() {
                   <SelectItem value="gujarat">Gujarat</SelectItem>
                   <SelectItem value="rajasthan">Rajasthan</SelectItem>
                   <SelectItem value="west_bengal">West Bengal</SelectItem>
+                  <SelectItem value="andhra_pradesh">Andhra Pradesh</SelectItem>
+                  <SelectItem value="telangana">Telangana</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="category">Social Category</Label>
+              <Label htmlFor="category" className="text-sm font-medium">Social Category</Label>
               <Select 
                 value={profile.category} 
                 onValueChange={(v) => updateField('category', v as any)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl bg-background/50">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="glass-card">
                   <SelectItem value="general">General</SelectItem>
                   <SelectItem value="obc">OBC</SelectItem>
                   <SelectItem value="sc">SC</SelectItem>
@@ -280,15 +308,15 @@ export function ProfileValidation() {
 
             {/* Education */}
             <div className="space-y-2">
-              <Label htmlFor="education">Education Level</Label>
+              <Label htmlFor="education" className="text-sm font-medium">Education Level</Label>
               <Select 
                 value={profile.education} 
                 onValueChange={(v) => updateField('education', v as any)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl bg-background/50">
                   <SelectValue placeholder="Select education" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="glass-card">
                   <SelectItem value="none">No Formal Education</SelectItem>
                   <SelectItem value="primary">Primary (1-5)</SelectItem>
                   <SelectItem value="secondary">Secondary (6-10)</SelectItem>
@@ -301,7 +329,7 @@ export function ProfileValidation() {
 
             {/* Family Members */}
             <div className="space-y-2">
-              <Label htmlFor="family">Family Members</Label>
+              <Label htmlFor="family" className="text-sm font-medium">Family Members</Label>
               <div className="flex gap-2">
                 <Input
                   id="family"
@@ -309,7 +337,7 @@ export function ProfileValidation() {
                   placeholder="Number of family members"
                   value={profile.familyMembers || ''}
                   onChange={(e) => updateField('familyMembers', parseInt(e.target.value) || undefined)}
-                  className="flex-1"
+                  className="flex-1 h-11 rounded-xl bg-background/50"
                 />
                 <VoiceInputButton
                   isListening={isListening && activeVoiceField === 'family'}
@@ -321,9 +349,9 @@ export function ProfileValidation() {
           </div>
 
           {/* Land Holding */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="landHolding">Land Holding (Hectares)</Label>
+              <Label htmlFor="landHolding" className="text-sm font-medium">Land Holding (Hectares)</Label>
               <div className="flex gap-2">
                 <Input
                   id="landHolding"
@@ -332,7 +360,7 @@ export function ProfileValidation() {
                   placeholder="e.g., 1.5"
                   value={profile.landHolding || ''}
                   onChange={(e) => updateField('landHolding', parseFloat(e.target.value) || undefined)}
-                  className="flex-1"
+                  className="flex-1 h-11 rounded-xl bg-background/50"
                 />
                 <VoiceInputButton
                   isListening={isListening && activeVoiceField === 'land'}
@@ -344,45 +372,53 @@ export function ProfileValidation() {
           </div>
 
           {/* Toggle switches */}
-          <div className="space-y-4 border-t pt-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="hasLand" className="cursor-pointer">Do you own agricultural land?</Label>
-              <Switch
-                id="hasLand"
-                checked={profile.hasLand}
-                onCheckedChange={(v) => updateField('hasLand', v)}
-              />
-            </div>
+          <div className="space-y-4 pt-4 border-t border-border/50">
+            <p className="text-sm font-medium text-muted-foreground">Additional Information</p>
+            
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                <Label htmlFor="hasLand" className="cursor-pointer text-sm">Own agricultural land?</Label>
+                <Switch
+                  id="hasLand"
+                  checked={profile.hasLand}
+                  onCheckedChange={(v) => updateField('hasLand', v)}
+                />
+              </div>
 
-            <div className="flex items-center justify-between">
-              <Label htmlFor="isRural" className="cursor-pointer">Do you live in a rural area?</Label>
-              <Switch
-                id="isRural"
-                checked={profile.isRural}
-                onCheckedChange={(v) => updateField('isRural', v)}
-              />
-            </div>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                <Label htmlFor="isRural" className="cursor-pointer text-sm">Live in rural area?</Label>
+                <Switch
+                  id="isRural"
+                  checked={profile.isRural}
+                  onCheckedChange={(v) => updateField('isRural', v)}
+                />
+              </div>
 
-            <div className="flex items-center justify-between">
-              <Label htmlFor="hasBPL" className="cursor-pointer">Do you have a BPL Card?</Label>
-              <Switch
-                id="hasBPL"
-                checked={profile.hasBPLCard}
-                onCheckedChange={(v) => updateField('hasBPLCard', v)}
-              />
-            </div>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                <Label htmlFor="hasBPL" className="cursor-pointer text-sm">Have BPL Card?</Label>
+                <Switch
+                  id="hasBPL"
+                  checked={profile.hasBPLCard}
+                  onCheckedChange={(v) => updateField('hasBPLCard', v)}
+                />
+              </div>
 
-            <div className="flex items-center justify-between">
-              <Label htmlFor="isWidow" className="cursor-pointer">Are you a widow?</Label>
-              <Switch
-                id="isWidow"
-                checked={profile.isWidow}
-                onCheckedChange={(v) => updateField('isWidow', v)}
-              />
+              <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                <Label htmlFor="isWidow" className="cursor-pointer text-sm">Are you a widow?</Label>
+                <Switch
+                  id="isWidow"
+                  checked={profile.isWidow}
+                  onCheckedChange={(v) => updateField('isWidow', v)}
+                />
+              </div>
             </div>
           </div>
 
-          <Button type="submit" size="lg" className="w-full gap-2">
+          <Button 
+            type="submit" 
+            size="lg" 
+            className="w-full gap-3 h-14 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
+          >
             Continue to Evaluation
             <ArrowRight className="w-5 h-5" />
           </Button>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, Brain, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Sparkles, Brain, FileText, CheckCircle, AlertTriangle, Languages, Lightbulb } from 'lucide-react';
 import { useEligibility } from '@/context/EligibilityContext';
 import { EligibilityResult } from '@/types/eligibility';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,10 +7,11 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const loadingSteps = [
-  { icon: Brain, text: "Analyzing eligibility criteria..." },
-  { icon: FileText, text: "Reviewing government guidelines..." },
-  { icon: Sparkles, text: "Generating official explanation..." },
-  { icon: CheckCircle, text: "Finalizing assessment report..." },
+  { icon: Brain, text: "Analyzing official eligibility criteria...", color: "from-blue-600 to-blue-800" },
+  { icon: FileText, text: "Simplifying government policy language...", color: "from-violet-600 to-violet-800" },
+  { icon: Languages, text: "Preparing multilingual explanation...", color: "from-emerald-600 to-emerald-800" },
+  { icon: Lightbulb, text: "Generating personalized guidance...", color: "from-amber-600 to-amber-800" },
+  { icon: CheckCircle, text: "Finalizing official assessment report...", color: "from-green-600 to-green-800" },
 ];
 
 export function AIExplanationLoading() {
@@ -118,19 +119,19 @@ export function AIExplanationLoading() {
   if (aiError) {
     return (
       <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
-        <div className="bg-card rounded-xl p-8 md:p-12 shadow-sm border text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/20 flex items-center justify-center">
+        <div className="glass-card rounded-2xl p-8 md:p-12 text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-destructive/20 flex items-center justify-center">
             <AlertTriangle className="w-10 h-10 text-destructive" />
           </div>
           
-          <h2 className="text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-2xl font-bold text-foreground mb-3">
             AI Generation Failed
           </h2>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-6 leading-relaxed">
             {aiError}
           </p>
           
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground p-4 rounded-xl bg-muted/50">
             The eligibility assessment cannot be completed without AI analysis.
             Please go back and try again.
           </p>
@@ -141,13 +142,15 @@ export function AIExplanationLoading() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-slide-up">
-      <div className="bg-card rounded-xl p-8 md:p-12 shadow-sm border text-center">
+      <div className="glass-card rounded-2xl p-8 md:p-12 text-center">
         {/* Animated AI icon */}
-        <div className="relative w-24 h-24 mx-auto mb-8">
-          <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
-          <div className="absolute inset-2 rounded-full bg-primary/30 animate-pulse" />
+        <div className="relative w-28 h-28 mx-auto mb-8">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/20 to-primary/20 animate-ping" />
+          <div className="absolute inset-3 rounded-xl bg-gradient-to-br from-amber-500/30 to-primary/30 animate-pulse" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <Sparkles className="w-12 h-12 text-primary" />
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
           </div>
         </div>
 
@@ -155,11 +158,17 @@ export function AIExplanationLoading() {
           Generating Official Explanation
         </h2>
         <p className="text-muted-foreground mb-8">
-          Based on government rules and guidelines{dots}
+          AI is analyzing government guidelines{dots}
         </p>
 
+        {/* AI Capabilities Badge */}
+        <div className="inline-flex items-center gap-2 genai-badge mb-8">
+          <Sparkles className="w-4 h-4 text-amber-600" />
+          <span className="text-foreground font-medium">Powered by Advanced AI</span>
+        </div>
+
         {/* Loading steps */}
-        <div className="space-y-4 text-left max-w-md mx-auto">
+        <div className="space-y-3 text-left max-w-md mx-auto">
           {loadingSteps.map((step, idx) => {
             const Icon = step.icon;
             const isActive = idx === currentStep;
@@ -170,22 +179,22 @@ export function AIExplanationLoading() {
               <div 
                 key={idx}
                 className={cn(
-                  "flex items-center gap-3 p-3 rounded-lg transition-all duration-500",
-                  isActive && "bg-primary/10",
+                  "flex items-center gap-4 p-4 rounded-xl transition-all duration-500",
+                  isActive && "bg-primary/10 border border-primary/20",
                   isCompleted && "opacity-60",
                   isPending && "opacity-30"
                 )}
               >
                 <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                  isActive && "bg-primary text-primary-foreground",
+                  "w-10 h-10 rounded-xl flex items-center justify-center transition-all shrink-0",
+                  isActive && `bg-gradient-to-br ${step.color} text-white shadow-lg`,
                   isCompleted && "bg-success text-success-foreground",
                   isPending && "bg-muted"
                 )}>
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-5 h-5" />
                 </div>
                 <span className={cn(
-                  "font-medium transition-colors",
+                  "font-medium transition-colors text-sm",
                   isActive && "text-primary",
                   isCompleted && "text-success",
                   isPending && "text-muted-foreground"
@@ -197,11 +206,15 @@ export function AIExplanationLoading() {
           })}
         </div>
 
-        {/* Info note */}
-        <div className="mt-8 p-4 bg-muted rounded-lg">
-          <p className="text-sm text-muted-foreground">
-            🤖 Using AI to analyze your eligibility based on official government guidelines. 
-            This may take a few seconds.
+        {/* GenAI Info note */}
+        <div className="mt-8 p-5 rounded-xl bg-gradient-to-r from-amber-500/10 to-primary/5 border border-amber-500/20">
+          <div className="flex items-center justify-center gap-2 text-sm text-amber-700 font-medium mb-2">
+            <Sparkles className="w-4 h-4" />
+            AI-Powered Analysis
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Our AI simplifies complex government policy language into clear, 
+            citizen-friendly explanations while maintaining legal accuracy.
           </p>
         </div>
       </div>
